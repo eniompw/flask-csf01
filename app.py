@@ -21,3 +21,6 @@ def login():
             return "Hello " + request.form["username"]
         else:
             return "login failed"
+
+if __name__ == "__main__":
+    app.run(debug=True)
