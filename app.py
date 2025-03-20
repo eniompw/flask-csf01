@@ -16,8 +16,13 @@ def signup():
     if request.method == "GET":
         return render_template("signup.html")
     else:
-        username = request.form["username"]
-        password = request.form["password"]
+        con = sqlite3.connect("login.db")
+        cur = con.cursor()
+        cur.execute(""" INSERT INTO users (username, password)
+                        VALUES (?, ?)""",
+                    (request.form["username"], request.form["password"]))
+        con.commit()
+        con.close()
         return "signup success"
     
 @app.route("/", methods=["GET", "POST"])
@@ -25,9 +30,14 @@ def login():
     if request.method == "GET":
         return render_template("index.html")
     else:
-        if "bob" == request.form["username"] and \
-            "123" == request.form["password"]:
-            return "Hello " + request.form["username"]
+        con = sqlite3.connect("login.db")
+        cur = con.cursor()
+        cur.execute("SELECT * FROM users WHERE username=? AND password=?",
+                    (request.form["username"], request.form["password"]))
+        user = cur.fetchone()
+        print(user)
+        if user:
+            return "login success"
         else:
             return "login failed"
 
