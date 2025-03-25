@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 import sqlite3
 import hashlib
+
 app = Flask(__name__)
+app.secret_key = 'random'
 
 con = sqlite3.connect("login.db")
 cur = con.cursor()
@@ -38,11 +40,20 @@ def login():
         cur.execute("SELECT * FROM users WHERE username=? AND password=?",
                     (request.form["username"], hash))
         user = cur.fetchone()
-        print(user)
         if user:
-            return "login success"
+            session["username"] = request.form["username"]
+            return render_template("welcome.html")
         else:
             return "login failed"
+
+@app.route("/w")
+def welcome():
+    return render_template("welcome.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("username", None)
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
